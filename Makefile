@@ -22,6 +22,9 @@ dwm: ${OBJ}
 clean:
 	rm -f dwm ${OBJ} dwm-${VERSION}.tar.gz config.h
 
+cleanup: clean
+	rm -f *.orig *.rej
+
 dist: clean
 	mkdir -p dwm-${VERSION}
 	cp -R LICENSE Makefile README config.def.h config.mk\

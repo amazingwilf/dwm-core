@@ -26,29 +26,8 @@ static const char *fonts[]			= { "Ubuntu:size=14",
 										"UbuntuMono Nerd Font:style=Bold:size=14" };
 static const char dmenufont[]		= "Ubuntu:size=15";
 
-static const char col_black[]		= "#000000";
-static const char col_gray1[]		= "#101010";
-static const char col_gray2[]		= "#545454";
-static const char col_gray3[]		= "#abb2bf";
-static const char col_gray4[]		= "#cdd3cf";
-static const char col_yellow[]		= "#d19a66";
-static const char col_blue[]		= "#61afef";
-static const char col_magenta[]		= "#c678dd";
-static const char col_cyan[]		= "#56b6c2";
-static const char col_accent[]		= "#0335bb";
- 
-static const char *colors[][3]		= {
-	/*						fg				bg				border	*/
-	[SchemeNorm]		= { col_gray3,		col_gray1,		col_gray2 },
-	[SchemeSel]			= { col_gray4,		col_accent,		col_blue  },
-	[SchemeTagsNorm]	= { col_gray2,		col_gray1,		col_black },
-	[SchemeTagsOcc]		= { col_cyan,		col_gray1,		col_black },
-	[SchemeTagsSel]		= { col_gray4,		col_accent,		col_black },
-	[SchemeLtSymbol]	= { col_yellow,		col_gray1,		col_black },
-	[SchemeTitleNorm]	= { col_gray3,		col_gray1,		col_black },
-	[SchemeTitleSel]	= { col_gray4,		col_gray1,		col_black },
-};
 
+#include "colors.h"
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
@@ -58,6 +37,7 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 static const Rule rules[] = {
 	{ .class = "Lxappearance", .isfloating = 1, .floatpos = "50% 50% -1h -1w" },
 	{ .class = "firefox", .tags = 1 << 1 },
+	{ .title = "spterm", .isfloating = 1, .scratchkey = 't', .floatpos = "50% 50% 80% 80%" },
 };
 
 
@@ -98,13 +78,18 @@ static const Layout layouts[] = {
 	{ MODKEY|ShiftMask,				KEY,	tag,		{.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask|ShiftMask,	KEY,	toggletag,	{.ui = 1 << TAG} },
 
-/* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#define SCRATCHKEYS(KEY,CMD) \
+	{ MODKEY,				KEY,	togglescratch,	{.v = CMD} }, \
+	{ MODKEY|ShiftMask,		KEY,	removescratch,	{.v = CMD} }, \
+	{ MODKEY|ControlMask,	KEY,	setscratch,		{.v = CMD} },
+
 
 /* commands */
 static const char *dmenucmd[] 	= { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_accent, "-sf", col_gray4, NULL };
-static const char *termcmd[]	= { "kitty", NULL };
+static const char *termcmd[]	= { "kitty", "-T", "Terminal", NULL };
 static const char *firefoxcmd[]	= { "firefox", NULL };
+
+static const char *sptermcmd[]	= { "t", "kitty", "-T", "spterm", NULL};
 
 static const Key keys[] = {
 	/* modifier				key				function			argument */
@@ -133,6 +118,7 @@ static const Key keys[] = {
 	{ MODKEY,				XK_Left,		viewprev,			{0} },
 	{ MODKEY|ShiftMask,		XK_Right,		tagtonext,			{0} },
 	{ MODKEY|ShiftMask,		XK_Left,		tagtoprev,			{0} },
+	SCRATCHKEYS(			XK_grave,							sptermcmd)
 	TAGKEYS(				XK_1,								0)
 	TAGKEYS(				XK_2,								1)
 	TAGKEYS(				XK_3,								2)
