@@ -4,6 +4,7 @@
 
 /* appearance */
 static const unsigned int borderpx	= 2;
+static const unsigned int fborderpx	= 4;
 static const unsigned int snap		= 32;
 static int floatposgrid_x			= 5;
 static int floatposgrid_y			= 5;
@@ -37,9 +38,9 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 static const Rule rules[] = {
 	{ .class = "Lxappearance", .isfloating = 1, .floatpos = "50% 50% -1h -1w" },
 	{ .class = "firefox", .tags = 1 << 1 },
+	{ .class = "Thunar", .tags = 1 << 2 },
 	{ .title = "spterm", .isfloating = 1, .scratchkey = 't', .floatpos = "50% 50% 80% 80%" },
 };
-
 
 
 /* layout(s) */
@@ -86,17 +87,20 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *dmenucmd[] 	= { "dmenu_run", "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_accent, "-sf", col_gray4, NULL };
-static const char *termcmd[]	= { "kitty", "-T", "Terminal", NULL };
+static const char *termcmd[]	= { "alacritty", NULL };
 static const char *firefoxcmd[]	= { "firefox", NULL };
+static const char *chromecmd[]	= { "google-chrome-stable", NULL };
+static const char *thunarcmd[]	= { "thunar", NULL };
 
-static const char *sptermcmd[]	= { "t", "kitty", "-T", "spterm", NULL};
+static const char *sptermcmd[]	= { "t", "alacritty", "-T", "spterm", NULL};
 
 static const Key keys[] = {
 	/* modifier				key				function			argument */
-	{ MODKEY,				XK_p,			spawn,				{.v = dmenucmd } },
+	{ MODKEY,				XK_space,		spawn,				{.v = dmenucmd } },
 	{ MODKEY,				XK_w,			spawn,				{.v = firefoxcmd } },
+	{ MODKEY|ShiftMask,		XK_w,			spawn,				{.v = chromecmd } },
+	{ MODKEY,				XK_e,			spawn,				{.v = thunarcmd } },
 	{ MODKEY,				XK_Return,		spawn,				{.v = termcmd } },
-	{ MODKEY,				XK_b,			togglebar,			{0} },
 	{ MODKEY,				XK_j,			focusstack,			{.i = +1 } },
 	{ MODKEY,				XK_k,			focusstack,			{.i = -1 } },
 	{ MODKEY,				XK_i,			incnmaster,			{.i = +1 } },
@@ -110,8 +114,9 @@ static const Key keys[] = {
 	{ MODKEY,				XK_t,			setlayout,			{.v = &layouts[0]} },
 	{ MODKEY,				XK_f,			setlayout,			{.v = &layouts[1]} },
 	{ MODKEY,				XK_m,			setlayout,			{.v = &layouts[2]} },
-	{ MODKEY,				XK_space,		setlayout,			{0} },
 	{ MODKEY|ShiftMask,		XK_space,		togglefloating,		{0} },
+	{ MODKEY|ShiftMask,		XK_b,			togglebar,			{0} },
+	{ MODKEY|ShiftMask,		XK_f,			togglefullscr,		{0} },
 	{ MODKEY,				XK_0,			view,				{.ui = ~0 } },
 	{ MODKEY|ShiftMask,		XK_0,			tag,				{.ui = ~0 } },
 	{ MODKEY,				XK_Right,		viewnext,			{0} },
