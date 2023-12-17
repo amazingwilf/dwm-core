@@ -1,0 +1,147 @@
+{
+	"layer": "top",	
+	"position": "top",
+    "height": 30,
+
+
+    "modules-left": ["hyprland/workspaces"],
+    // "modules-left": ["sway/workspaces", "custom/scratch", "sway/mode", "sway/window"],
+    "modules-center": ["hyprland/window"],
+    "modules-right": ["backlight", "pulseaudio", "battery", "clock", "tray"],
+
+"hyprland/workspaces": {
+  "format": "{icon}",
+  "on-click": "activate",
+  // "format-icons": {
+  //  "1": "",
+  //  "2": "",
+  //  "3": "",
+  //  "4": "",
+  //  "5": "",
+  //  "urgent": "",
+  //  "active": "",
+  //  "default": ""
+//  },
+  "persistent-workspaces": {
+        "1": [], 
+        "2": [], 
+        "3": [], 
+        "4": [], 
+        "5": [], 
+        "6": [], 
+    },
+  "sort-by-number": true
+},
+
+
+	"hyprland/window": {
+    	"format": "{}",
+    	"max-length": 150
+},
+
+
+	"custom/scratch": {
+   		"interval": 3,
+   		"exec": "swaymsg -t get_tree | jq 'recurse(.nodes[]) | first(select(.name==\"__i3_scratch\")) | .floating_nodes | length | select(. >= 0)'",
+   		"format": "^{}", 
+   		"on-click": "swaymsg 'scratchpad show'",
+   		"on-click-right": "swaymsg 'move scratchpad'"
+},
+
+
+    "tray": {
+        "icon-size": 18,
+        "spacing": 15
+},
+
+
+    "clock": {
+        "format": "{:%a %b %e  %R}",
+        "interval": 30
+},
+
+    
+    "battery": {
+        "bat": "BAT0",
+        "states": {
+              "full": 99,
+              "good": 98,
+              "normal": 98,
+              "warning": 20,
+              "critical": 20
+},
+
+        "format": "{icon}   {capacity}%",
+        "format-good": "{icon}   {capacity}%", 
+        "format-full": "   {capacity}%",
+        "format-icons": ["", "", "", "", ""],
+        "interval": 30
+},
+
+
+    "network": {
+        "interface": "wlp4s0", 
+        "format-wifi": "   WiFi-On",
+        "format-disconnected": "睊   Disconnected",
+        "interval": 60
+},
+
+
+    "temperature": {
+	   	"thermal-zone": 0,
+		"format": "{icon} {temperatureC}°C",
+		"format-icons":[""],
+		"interval": 30
+},
+
+
+	"backlight": {
+    	"device": "gmux_backlight",
+    	"format": "{icon}  {percent}%  ",
+    	"format-icons": ["","","",""],
+    	"interval": 60
+},
+
+
+
+"wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 14,
+  //  "icon-theme": "Numix-Circle",
+    "tooltip-format": "{title}",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    "ignore-list": [
+       "Alacritty"
+    ],
+    "app_ids-mapping": {
+      "firefoxdeveloperedition": "firefox-developer-edition"
+    },
+    "rewrite": {
+        "Firefox Web Browser": "Firefox",
+        "Foot Server": "Terminal"
+    }
+},
+
+
+
+
+
+
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%  ",
+        "format-bluetooth": "  {volume}%  ",
+        "format-muted":"婢  Mute  ",
+        "interval": 60,
+
+        "format-icons": {
+        "default": [""]
+},
+            
+       "on-click": "blueman-manager"    
+
+
+}
+
+}
