@@ -204,6 +204,7 @@ static void configure(Client *c);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
 static Monitor *createmon(void);
+static void cyclelayout(const Arg *arg);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
@@ -215,6 +216,7 @@ static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void floatpos(const Arg *arg);
 static void focus(Client *c);
+static void focusdir(const Arg *arg);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
@@ -238,6 +240,7 @@ static void movemouse(const Arg *arg);
 static unsigned int nexttag(void);
 static Client *nexttagged(Client *c);
 static Client *nexttiled(Client *c);
+static void placedir(const Arg *arg);
 static void pop(Client *c);
 static unsigned int prevtag(void);
 static void propertynotify(XEvent *e);
@@ -764,6 +767,23 @@ createmon(void)
 }
 
 void
+cyclelayout(const Arg *arg) {
+	Layout *l;
+	for(l = (Layout *)layouts; l != selmon->lt[selmon->sellt]; l++);
+	if(arg->i > 0) {
+		if(l->symbol && (l + 1)->symbol)
+			setlayout(&((Arg) { .v = (l + 1) }));
+		else
+			setlayout(&((Arg) { .v = layouts }));
+	} else {
+		if(l != layouts && (l - 1)->symbol)
+			setlayout(&((Arg) { .v = (l - 1) }));
+		else
+			setlayout(&((Arg) { .v = &layouts[LENGTH(layouts) - 2] }));
+	}
+}
+
+void
 destroynotify(XEvent *e)
 {
 	Client *c;
@@ -1057,6 +1077,72 @@ focus(Client *c)
 	}
 	selmon->sel = c;
 	drawbars();
+}
+
+void
+focusdir(const Arg *arg)
+{
+	Client *s = selmon->sel, *f = NULL, *c, *next;
+
+	if (!s)
+		return;
+
+	unsigned int score = -1;
+	unsigned int client_score;
+	int dist;
+	int dirweight = 20;
+	int isfloating = s->isfloating;
+
+	next = s->next;
+	if (!next)
+		next = s->mon->clients;
+	for (c = next; c != s; c = next) {
+
+		next = c->next;
+		if (!next)
+			next = s->mon->clients;
+
+		if (!ISVISIBLE(c) || c->isfloating != isfloating) // || HIDDEN(c)
+			continue;
+
+		switch (arg->i) {
+		case 0: // left
+			dist = s->x - c->x - c->w;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
+				abs(s->y - c->y);
+			break;
+		case 1: // right
+			dist = c->x - s->x - s->w;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
+				abs(c->y - s->y);
+			break;
+		case 2: // up
+			dist = s->y - c->y - c->h;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
+				abs(s->x - c->x);
+			break;
+		default:
+		case 3: // down
+			dist = c->y - s->y - s->h;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
+				abs(c->x - s->x);
+			break;
+		}
+
+		if (((arg->i == 0 || arg->i == 2) && client_score <= score) || client_score < score) {
+			score = client_score;
+			f = c;
+		}
+	}
+
+	if (f && f != s) {
+		focus(f);
+		restack(f->mon);
+	}
 }
 
 /* there are some broken focus acquiring clients needing extra handling */
@@ -1659,6 +1745,103 @@ nexttiled(Client *c)
 {
 	for (; c && (c->isfloating || !ISVISIBLE(c)); c = c->next);
 	return c;
+}
+
+void
+placedir(const Arg *arg)
+{
+	Client *s = selmon->sel, *f = NULL, *c, *next, *fprior, *sprior;
+
+	if (!s || s->isfloating)
+		return;
+
+	unsigned int score = -1;
+	unsigned int client_score;
+	int dist;
+	int dirweight = 20;
+
+	next = s->next;
+	if (!next)
+		next = s->mon->clients;
+	for (c = next; c != s; c = next) {
+
+		next = c->next;
+		if (!next)
+			next = s->mon->clients;
+
+		if (!ISVISIBLE(c)) // || HIDDEN(c)
+			continue;
+
+		switch (arg->i) {
+		case 0: // left
+			dist = s->x - c->x - c->w;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
+				abs(s->y - c->y);
+			break;
+		case 1: // right
+			dist = c->x - s->x - s->w;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->ww)) +
+				abs(c->y - s->y);
+			break;
+		case 2: // up
+			dist = s->y - c->y - c->h;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
+				abs(s->x - c->x);
+			break;
+		default:
+		case 3: // down
+			dist = c->y - s->y - s->h;
+			client_score =
+				dirweight * MIN(abs(dist), abs(dist + s->mon->wh)) +
+				abs(c->x - s->x);
+			break;
+		}
+
+		if (((arg->i == 0 || arg->i == 2) && client_score <= score) || client_score < score) {
+			score = client_score;
+			f = c;
+		}
+	}
+
+	if (f && f != s) {
+		for (fprior = f->mon->clients; fprior && fprior->next != f; fprior = fprior->next);
+		for (sprior = s->mon->clients; sprior && sprior->next != s; sprior = sprior->next);
+
+		if (s == fprior) {
+			next = f->next;
+			if (sprior)
+				sprior->next = f;
+			else
+				f->mon->clients = f;
+			f->next = s;
+			s->next = next;
+		} else if (f == sprior) {
+			next = s->next;
+			if (fprior)
+				fprior->next = s;
+			else
+				s->mon->clients = s;
+			s->next = f;
+			f->next = next;
+		} else { // clients are not adjacent to each other
+			next = f->next;
+			f->next = s->next;
+			s->next = next;
+			if (fprior)
+				fprior->next = s;
+			else
+				s->mon->clients = s;
+			if (sprior)
+				sprior->next = f;
+			else
+				f->mon->clients = f;
+		}
+
+		arrange(f->mon);
+	}
 }
 
 void

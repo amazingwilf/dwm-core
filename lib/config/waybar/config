@@ -98,7 +98,7 @@
 	"backlight": {
     	"device": "gmux_backlight",
     	"format": "{icon}  {percent}%  ",
-    	"format-icons": ["","","",""],
+    	"format-icons": ["󰃞","󰃟","󰃝","󰃠"],
     	"interval": 60
 },
 
@@ -124,22 +124,15 @@
 },
 
 
-
-
-
-
-
-    "pulseaudio": {
-        "format": "{icon}  {volume}%  ",
-        "format-bluetooth": "  {volume}%  ",
-        "format-muted":"婢  Mute  ",
-        "interval": 60,
-
-        "format-icons": {
-        "default": [""]
+"pulseaudio": {
+    "format": "{icon}  {volume}%  ",
+    "format-bluetooth": "  {volume}%  ",
+    "format-muted":"󰖁  Mute  ",
+    "interval": 60,
+    "format-icons": ["󰕿","󰖀","󰕾"],
+    "on-click": "volume --mute"    
 },
             
-       "on-click": "blueman-manager"    
 
 
 }

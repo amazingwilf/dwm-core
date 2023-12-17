@@ -74,6 +74,7 @@ window#waybar {
 #window {
 	 color: #ffffff;
 	 background-color: #0101c1;
+	 border-radius: 10;
      padding: 0px 10px 0px 10px;
 }
 
@@ -114,5 +115,10 @@ window#waybar.empty {
     color: #ff5555;
 }
 
+#backlight{
+	color: #aaee00;
+}
 
-
+#pulseaudio{
+	color: #77aaff;
+}
