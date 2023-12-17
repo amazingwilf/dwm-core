@@ -5,6 +5,8 @@
 /* appearance */
 static const unsigned int borderpx	= 2;
 static const unsigned int snap		= 32;
+static int floatposgrid_x			= 5;
+static int floatposgrid_y			= 5;
 
 static const unsigned int gappih	= 15;
 static const unsigned int gappiv	= 15;
@@ -54,7 +56,7 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
 /* client rules */
 static const Rule rules[] = {
-	{ .class = "Lxappearance", .isfloating = 1 },
+	{ .class = "Lxappearance", .isfloating = 1, .floatpos = "50% 50% -1h -1w" },
 	{ .class = "firefox", .tags = 1 << 1 },
 };
 
